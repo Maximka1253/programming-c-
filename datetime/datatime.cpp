@@ -1,5 +1,4 @@
 #include "datatime.h"
-#include <iostream>
 #include <iomanip>
 #include <cmath>
 
@@ -20,6 +19,24 @@ int DateTime::daysinMonth(int month, int year){
     }
 }
 
+int DateTime::getWeekDay() const {
+    int jdn = static_cast<int>(toJulDay() + 0.5);
+    return (jdn + 1) % 7;
+}
+
+std::string DateTime::getWeekDayName() const {
+    static const std::string days[] = {
+        "Воскресенье",
+        "Понедельник",
+        "Вторник",
+        "Среда",
+        "Четверг",
+        "Пятница",
+        "Суббота"
+    };
+    return days[getWeekDay()];
+}
+
 DateTime::DateTime(int year, int month, int day, int hour, int minute, int second)
     : year(year), month(1), day(1), hour(0), minute(0), second(0){
     if (month < 1 || month > 12) {
@@ -28,7 +45,7 @@ DateTime::DateTime(int year, int month, int day, int hour, int minute, int secon
     }
     int maxDay = daysinMonth(month, year);
     if (day < 1 || day > maxDay){
-        cerr << "В " << year << "/" << month << " не более " << maxDay << " дней";
+        cerr << "В " << year << "/" << month << " не более " << maxDay << " дней!!!" << endl;
         return; 
     }
     if (hour < 0 || hour > 23) {
@@ -66,14 +83,25 @@ void DateTime::setYear(int year) {
 
 void DateTime::setMonth(int month) {
     if (month < 1 || month > 12) {
-        cerr << "Месяц должен быть от 1 до 12";
+        cerr << "Месяц должен быть от 1 до 12\n";
+        return;
+    }
+
+    int maxDay = daysinMonth(month, year);
+    if (day > maxDay) {
+        cerr << "Нельзя установить месяц " << month
+             << ", потому что в нем только " << maxDay
+             << " дней\n";
         return;
     }
     this->month = month;
 }
 void DateTime::setDay(int day) {
-    if (day < 1 || day > 31) {
-        cerr << "День должен быть от 1 до 31";
+    int maxDay = daysinMonth(month, year);
+
+    if (day < 1 || day > maxDay) {
+        cerr << "Для " << year << "/" << month
+             << " день должен быть от 1 до " << maxDay << "\n";
         return;
     }
     this->day = day;
@@ -183,10 +211,20 @@ ostream& operator<<(ostream& os, const DateTime& dt) {
 istream& operator>>(std::istream& is, DateTime& dt) {
     int year, month, day, hour, minute, second;
 
-    if (is >> year >> month >> day >> hour >> minute >> second) {
-        DateTime tmp(year, month, day, hour, minute, second);
-        if (tmp.isValid()) {
-            dt = tmp;}
+    if (!(is >> year >> month >> day >> hour >> minute >> second)) {
+        cerr << "Введите дату в формате: год час месяц день минута секунда" << endl;
+        is.setstate(std::ios::failbit);
+        return is;
     }
+
+    DateTime tmp(year, month, day, hour, minute, second);
+
+    if (!tmp.isValid()) {
+        cerr << "Ошибка! Некорректная дата или время." << endl;
+        is.setstate(std::ios::failbit);
+        return is;
+    }
+
+    dt = tmp;
     return is;
 }

@@ -11,14 +11,9 @@ int main() {
     cout << "dt1: " << dt1 << "\n";
     cout << "dt2: " << dt2 << "\n";
 
-    istringstream ss1("2021-12-21T07:54:34");
-    istringstream ss2("2024-02-29");
-    istringstream ss3("07:54:34");
-
-    DateTime dt3, dt4, dt5;
-    ss1 >> dt3;
-    ss2 >> dt4;
-    ss3 >> dt5;
+    DateTime dt3(2021, 2, 12, 23, 54, 32);
+    DateTime dt4(2024, 9, 22, 21, 24, 52);
+    DateTime dt5(2023, 7, 2, 13, 42, 12);
 
     cout << "dt3: " << dt3 << "\n";
     cout << "dt4: " << dt4 << "\n";

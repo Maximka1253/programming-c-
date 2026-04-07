@@ -23,6 +23,9 @@ public:
     int getMinute() const;
     int getSecond() const;
 
+    int getWeekDay() const;
+    std::string getWeekDayName() const;
+
     void setYear(int year);
     void setMonth(int month);
     void setDay(int day);
