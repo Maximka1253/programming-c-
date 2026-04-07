@@ -40,7 +40,7 @@ std::string DateTime::getWeekDayName() const {
 DateTime::DateTime(int year, int month, int day, int hour, int minute, int second)
     : year(year), month(1), day(1), hour(0), minute(0), second(0){
     if (month < 1 || month > 12) {
-        cerr << "Месяц должен быть от 1 до 12";
+        cerr << "Месяц должен быть от 1 до 12" << endl;
         return;
     }
     int maxDay = daysinMonth(month, year);
@@ -49,15 +49,15 @@ DateTime::DateTime(int year, int month, int day, int hour, int minute, int secon
         return; 
     }
     if (hour < 0 || hour > 23) {
-        cerr << "В дне может быть только от 0 до 23 часа";
+        cerr << "В дне может быть только от 0 до 23 часа" << endl;
         return;
     }
     if (minute < 0 || minute > 59) {
-        cerr << "В часу от 0 до 59 секунд";
+        cerr << "В часу от 0 до 59 секунд" << endl;
         return;
     }
     if (second < 0 || second > 59) {
-        cerr << "В минуте от 0 до 59 секунд";
+        cerr << "В минуте от 0 до 59 секунд" << endl;
         return;
     }
     this->year = year;
@@ -78,20 +78,24 @@ int DateTime::getMinute() const {return minute;}
 int DateTime::getSecond() const {return second;}
 
 void DateTime::setYear(int year) {
+    int maxDay = daysinMonth(month, year);
+
+    if (day > maxDay) {
+        cerr << "Нельзя установить год " << year << ", потому что в " << month << " месяце максимум " << maxDay << " дней" << endl;
+        return;
+    }
     this->year = year;
 }
 
 void DateTime::setMonth(int month) {
     if (month < 1 || month > 12) {
-        cerr << "Месяц должен быть от 1 до 12\n";
+        cerr << "Месяц должен быть от 1 до 12" << endl;
         return;
     }
 
     int maxDay = daysinMonth(month, year);
     if (day > maxDay) {
-        cerr << "Нельзя установить месяц " << month
-             << ", потому что в нем только " << maxDay
-             << " дней\n";
+        cerr << "Нельзя установить месяц " << month << ", потому что в нем только " << maxDay << " дней" << endl;
         return;
     }
     this->month = month;
@@ -149,25 +153,42 @@ double DateTime::toJulDay() const {
     return jdn + timeJD;
 }
 
-DateTime DateTime::fromJulDay(double jdn) {
-    int int_jdn = static_cast<int>(jdn);
-    double fractional_jdn = jdn - int_jdn;
+DateTime DateTime::fromJulDay(double jd) {
+    jd += 0.5;
 
-    int f = int_jdn + 1401 + ((3 * (4 * int_jdn + 274277) / 146097) / 4) - 38;
-    int e = f * 4 + 3;
-    int g = (e % 1461) / 4;
-    int h = 5 * g + 2;
+    int Z = static_cast<int>(jd);
+    double F = jd - Z;
 
-    int d = (h % 153) / 5 + 1;
-    int m = ((h / 153) + 2) % 12 + 1;
-    int y = (e / 1461) - 4716 + (14 - m) / 12;
+    int A = Z;
+    int B = A + 1524;
+    int C = static_cast<int>((B - 122.1) / 365.25);
+    int D = static_cast<int>(365.25 * C);
+    int E = static_cast<int>((B - D) / 30.6001);
 
-    int total_seconds = std::round(fractional_jdn * 86400);
-    int hours = total_seconds / 3600;
-    int minutes = (total_seconds % 3600) / 60;
-    int seconds = total_seconds % 60;
+    int day = B - D - static_cast<int>(30.6001 * E);
+    int month = (E < 14) ? E - 1 : E - 13;
+    int year = (month > 2) ? C - 4716 : C - 4715;
 
-    return DateTime(y, m, d, hours, minutes, seconds);
+    int total_seconds = static_cast<int>(std::round(F * 86400));
+
+    if (total_seconds >= 86400) {
+        total_seconds -= 86400;
+        day++;
+        if (day > daysinMonth(month, year)) {
+            day = 1;
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
+        }
+    }
+
+    int hour = total_seconds / 3600;
+    int minute = (total_seconds % 3600) / 60;
+    int second = total_seconds % 60;
+
+    return DateTime(year, month, day, hour, minute, second);
 }
 
 DateTime DateTime::operator+(int days) const {
@@ -177,13 +198,19 @@ DateTime DateTime::operator-(int days) const {
     return fromJulDay(toJulDay() - days);
 }
 int DateTime::operator-(const DateTime& other) const {
-    return fabs((int)(toJulDay() - other.toJulDay()));
+    return static_cast<int>(fabs(toJulDay() - other.toJulDay()));
 }
-bool DateTime::operator==(const DateTime& r) const{
-    return toJulDay() == r.toJulDay();
+bool DateTime::operator==(const DateTime& r) const {
+    return year == r.year &&
+           month == r.month &&
+           day == r.day &&
+           hour == r.hour &&
+           minute == r.minute &&
+           second == r.second;
 }
+
 bool DateTime::operator!=(const DateTime& r) const {
-    return toJulDay() != r.toJulDay();
+    return !(*this == r);
 }
 bool DateTime::operator<(const DateTime& r) const {
     return toJulDay() < r.toJulDay();
@@ -208,23 +235,45 @@ ostream& operator<<(ostream& os, const DateTime& dt) {
     return os;
 }
 
-istream& operator>>(std::istream& is, DateTime& dt) {
+istream& operator>>(istream& is, DateTime& dt) {
     int year, month, day, hour, minute, second;
 
     if (!(is >> year >> month >> day >> hour >> minute >> second)) {
-        cerr << "Введите дату в формате: год час месяц день минута секунда" << endl;
-        is.setstate(std::ios::failbit);
+        is.setstate(ios::failbit);
         return is;
     }
 
-    DateTime tmp(year, month, day, hour, minute, second);
-
-    if (!tmp.isValid()) {
-        cerr << "Ошибка! Некорректная дата или время." << endl;
-        is.setstate(std::ios::failbit);
+    if (month < 1 || month > 12) {
+        cerr << "Месяц должен быть от 1 до 12" << endl;
+        is.setstate(ios::failbit);
         return is;
     }
 
-    dt = tmp;
+    int maxDay = DateTime::daysinMonth(month, year);
+    if (day < 1 || day > maxDay) {
+        cerr << "В " << year << "/" << month << " не более " << maxDay << " дней!!!" << endl;
+        is.setstate(ios::failbit);
+        return is;
+    }
+
+    if (hour < 0 || hour > 23) {
+        cerr << "Час должен быть от 0 до 23" << endl;
+        is.setstate(ios::failbit);
+        return is;
+    }
+
+    if (minute < 0 || minute > 59) {
+        cerr << "Минута должна быть от 0 до 59" << endl;
+        is.setstate(ios::failbit);
+        return is;
+    }
+
+    if (second < 0 || second > 59) {
+        cerr << "Ошибка! Секунда должна быть от 0 до 59" << endl;
+        is.setstate(ios::failbit);
+        return is;
+    }
+
+    dt = DateTime(year, month, day, hour, minute, second);
     return is;
 }

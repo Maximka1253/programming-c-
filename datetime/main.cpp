@@ -1,47 +1,35 @@
 #include "datatime.h"
 #include <iostream>
-#include <sstream>
 
 using namespace std;
 
 int main() {
-    DateTime dt1(2026, 4, 5, 12, 30, 0);
+    DateTime dt1(2026, 4, 7, 14, 30, 0);
     DateTime dt2(2025, 1, 1);
 
-    cout << "dt1: " << dt1 << "\n";
-    cout << "dt2: " << dt2 << "\n";
+    cout << "dt1 = " << dt1 << endl;
+    cout << "dt2 = " << dt2 << endl << endl;
 
-    DateTime dt3(2021, 2, 12, 23, 54, 32);
-    DateTime dt4(2024, 9, 22, 21, 24, 52);
-    DateTime dt5(2023, 7, 2, 13, 42, 12);
+    cout << "День недели для dt1: " << dt1.getWeekDayName() << endl;
+    cout << "День недели для dt2: " << dt2.getWeekDayName() << endl << endl;
 
-    cout << "dt3: " << dt3 << "\n";
-    cout << "dt4: " << dt4 << "\n";
-    cout << "dt5: " << dt5 << "\n";
+    cout << "dt1 + 10 дней = " << (dt1 + 10) << endl;
+    cout << "dt1 - 5 дней  = " << (dt1 - 5) << endl;
+    cout << "Разница между dt1 и dt2 = " << (dt1 - dt2) << " дней" << endl << endl;
 
-    // ввод с клавиатуры
-    cout << "Введите дату: ";
-    cin >> dt1;
-    cout << " Вы ввели: " << dt1 << "\n";
+    cout << "dt1 > dt2: " << (dt1 > dt2) << endl;
+    cout << "dt1 < dt2: " << (dt1 < dt2) << endl;
+    cout << "dt1 == dt2: " << (dt1 == dt2) << endl << endl;
 
-    // арифметика
-    cout << "(dt1 + 100): " << (dt1 + 100) << "\n";
-    cout << "(dt1 - 30):  " << (dt1 - 30)  << "\n";
-    cout << "Разница: "     << (dt1 - dt2) << " дней\n";
+    DateTime userDate;
 
-    // сравнение
-    cout << "dt1 > dt2:  " << (dt1 >  dt2) << "\n";
-    cout << "dt1 < dt2:  " << (dt1 <  dt2) << "\n";
-    cout << "dt1 == dt2: " << (dt1 == dt2) << "\n";
+    cout << "Введите дату в формате: ГОД МЕСЯЦ ДЕНЬ ЧАС МИНУТА СЕКУНДА(2026 4 7 12 12 12)" << endl;
+    cout << "> ";
 
-    // сортировка
-    DateTime arr[] = {
-        DateTime(2023, 6, 15),
-        DateTime(2021, 12, 21),
-        DateTime(2025, 1, 1),
-        DateTime(2022, 3, 10),
-        DateTime(2024, 7, 4)
-    };
-    int n = 5;
-    return 0;
+    if (cin >> userDate) {
+        cout << "Вы ввели: " << userDate << endl;
+        cout << "День недели: " << userDate.getWeekDayName() << endl;
+    } else {
+        cout << "Ошибка! Такой даты не существует или формат ввода неверный." << endl;
+    }
 }
