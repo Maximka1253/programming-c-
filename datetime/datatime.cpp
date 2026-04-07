@@ -269,7 +269,7 @@ istream& operator>>(istream& is, DateTime& dt) {
     }
 
     if (second < 0 || second > 59) {
-        cerr << "Ошибка! Секунда должна быть от 0 до 59" << endl;
+        cerr << "Секунда должна быть от 0 до 59" << endl;
         is.setstate(ios::failbit);
         return is;
     }
