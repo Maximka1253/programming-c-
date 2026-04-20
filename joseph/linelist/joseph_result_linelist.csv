@@ -10,3 +10,9 @@ N: 300000   k: 2    time: 0.019146sec    elem: 75713
 N: 350000   k: 2    time: 0.020143sec    elem: 175713
 N: 500000   k: 2    time: 0.040099sec    elem: 475713
 N: 1000000  k: 2    time: 0.071078sec    elem: 951425
+N: 2000000  k: 2    time: 0.131001sec    elem: 1902849
+N: 5000000  k: 2    time: 0.312237sec    elem: 1611393
+N: 7500000  k: 2    time: 0.463342sec    elem: 6611393
+N: 10000000 k: 2    time: 0.61213sec     elem: 3222785
+N: 15000000 k: 2    time: 0.910285sec    elem: 13222785
+N: 20000000 k: 2    time: 1.21584sec     elem: 6445569
