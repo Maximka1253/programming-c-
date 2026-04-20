@@ -1,18 +1,16 @@
-#ifndef LINELIST_H
-#define LINELIST_H
+#ifndef CYCLELIST_H
+#define CYCLELIST_H
 
 #include <exception>
 #include <iostream>
 
 using namespace std;
 
-// Класс исключения
 class LineListException : public exception {
 public:
     const char* what() const throw() { return "LineList Error"; }
 };
 
-// Шаблон элемента списка
 template <class T> class LineListElem {
     T data;
     LineListElem<T>* next;
@@ -27,7 +25,6 @@ public:
     template <class U> friend class LineList;
 };
 
-// Шаблон списка
 template <class T> class LineList {
     LineListElem<T>* start;
     LineListElem<T>* tail;
@@ -48,9 +45,15 @@ public:
     LineListElem<T>* getStart() { return start; }
 
     void insertFirst(const T& data) {
-        LineListElem<T>* second = start;
-        start = new LineListElem<T>(data, second);
-        if (!tail) tail = start;
+        if (!start) {
+            start = new LineListElem<T>(data, 0);
+            tail = start;
+            tail->next = start; // Закольцовывание
+        } else {
+            LineListElem<T>* second = start;
+            start = new LineListElem<T>(data, second);
+            tail->next = start; // Поддержание цикла
+        }
     }
 
     void insertAfter(LineListElem<T>* ptr, const T& data) {
@@ -63,32 +66,46 @@ public:
 
     void deleteFirst() {
         if (start) {
-            LineListElem<T>* temp = start->next;
-            delete start;
-            start = temp;
-            if (!start) tail = 0;
+            if (start == tail) {
+                delete start;
+                start = 0;
+                tail = 0;
+            } else {
+                LineListElem<T>* temp = start->next;
+                delete start;
+                start = temp;
+                tail->next = start; // Поддержание цикла
+            }
         } else throw LineListException();
     }
 
     void deleteAfter(LineListElem<T>* ptr) {
-        if (ptr && ptr->next) {
+        if (ptr && start) {
             LineListElem<T>* temp = ptr->next;
-            ptr->next = ptr->next->next;
-            if (temp == tail) tail = ptr;
-            delete temp;
+            if (temp == start) {
+                deleteFirst();
+            } else {
+                ptr->next = temp->next;
+                if (temp == tail) tail = ptr;
+                delete temp;
+            }
         } else throw LineListException();
     }
 
     template <class U> friend ostream& operator <<(ostream& out, LineList<U>& list);
 };
 
-// Оператор вывода
+// Оператор вывода для циклического списка
 template <class T> ostream& operator <<(ostream& out, LineList<T>& list) {
     LineListElem<T>* ptr = list.start;
-    if (!ptr) out << "EMPTY ";
-    else while (ptr) {
-        out << ptr->getData() << ' ';
-        ptr = ptr->getNext();
+    if (!ptr) {
+        out << "EMPTY ";
+    } else {
+        LineListElem<T>* first = ptr;
+        do {
+            out << ptr->getData() << " ";
+            ptr = ptr->getNext();
+        } while (ptr != first);
     }
     return out;
 }
