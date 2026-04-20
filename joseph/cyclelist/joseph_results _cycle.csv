@@ -1,0 +1,12 @@
+N: 100      k: 2    time: 2e-06sec    elem: 73
+N: 1000     k: 2    time: 6e-06sec   elem: 977
+N: 5000     k: 2    time: 2.3e-05sec   elem: 1809
+N: 10000    k: 2    time: 4.4e-05sec   elem: 3617
+N: 50000    k: 2    time: 0.000145sec   elem: 34465
+N: 100000   k: 2    time: 0.000435sec    elem: 68929
+N: 200000   k: 2    time: 0.000585sec    elem: 137857
+N: 250000   k: 2    time: 0.000767sec    elem: 237857
+N: 300000   k: 2    time: 0.001194sec    elem: 75713
+N: 350000   k: 2    time: 0.00124sec    elem: 175713
+N: 500000   k: 2    time: 0.001558sec    elem: 475713
+N: 1000000  k: 2    time: 0.003172sec    elem: 951425
