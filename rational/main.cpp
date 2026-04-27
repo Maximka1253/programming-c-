@@ -15,6 +15,16 @@ int main() {
     Rational c = 3;
     cout << "b=" << b << " c=" << c << " b/c=" << b/c << endl;
 
+    Rational h(3,4);
+    int k = 2;
+    cout << "h=" << h << " k=" << k << endl;
+    cout << "h*k=" << h * k << " k*h=" << k * h << endl;
+    cout << "h/k=" << h / k << " k/h=" << k / h << endl;
+    h *= k;
+    cout << "после h*=k: h=" << h << endl;
+    h /= k;
+    cout << "после h/=k: h=" << h << endl;
+
     Rational e(7,8), f(5,12);
     cout << "e=" << e << " f=" << f << " e+f=?" << endl;
     cout << "Введите результат g=m/n в формате: m n" << endl;
@@ -44,7 +54,7 @@ int main() {
     cin >> qb;
     cout << "Введите c: ";
     cin >> qc;
-    cout << "Решаем уравнение: " << qa << "*x^2 + (" << qb << ")*x + " << qc << " = 0" << endl;
+    cout << "Решение уравнения: " << qa << "*x^2 + (" << qb << ")*x + " << qc << " = 0" << endl;
     QuadUravnenie(qa, qb, qc);
 
     return 0;

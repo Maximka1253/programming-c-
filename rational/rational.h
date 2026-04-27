@@ -25,9 +25,15 @@ public:
 
     Rational& operator *=(const Rational& r);
     Rational operator *(const Rational& r) const;
+    Rational& operator *=(int value);
+    Rational operator *(int value) const;
+    friend Rational operator *(int lhs, const Rational& rhs);
 
     Rational& operator /=(const Rational& r);
     Rational operator /(const Rational& r) const;
+    Rational& operator /=(int value);
+    Rational operator /(int value) const;
+    friend Rational operator /(int lhs, const Rational& rhs);
 
     Rational& operator ++();
     Rational operator ++(int);
@@ -40,8 +46,8 @@ public:
     bool operator >=(const Rational& r) const;
 
 
-    operator int() const;
-    operator double() const;
+    explicit operator int() const;
+    explicit operator double() const;
 
     friend std::istream& operator >>(std::istream& in, Rational& r);
     friend std::ostream& operator <<(std::ostream& out, const Rational& r);

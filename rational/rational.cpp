@@ -1,5 +1,6 @@
 #include "rational.h"
 #include <cmath>
+#include <stdexcept>
 
 using namespace std;
 
@@ -30,6 +31,9 @@ int Rational::gcd(int a, int b) const {
 }
 
 void Rational::simplify() {
+    if (denom == 0) {
+        throw invalid_argument("Denominator cannot be zero");
+    }
     if (denom < 0) {
         numer = -numer;
         denom = -denom;
@@ -78,7 +82,25 @@ Rational Rational::operator *(const Rational &r) const {
     return res *= r;
 }
 
+Rational& Rational::operator *=(int value) {
+    numer *= value;
+    simplify();
+    return *this;
+}
+
+Rational Rational::operator *(int value) const {
+    Rational res(*this);
+    return res *= value;
+}
+
+Rational operator *(int lhs, const Rational& rhs) {
+    return Rational(lhs) * rhs;
+}
+
 Rational& Rational::operator /=(const Rational& r) {
+    if (r.numer == 0) {
+        throw domain_error("0 не может быть знаменателем");
+    }
     numer *= r.denom;
     denom *= r.numer;
     simplify();
@@ -88,6 +110,24 @@ Rational& Rational::operator /=(const Rational& r) {
 Rational Rational::operator /(const Rational &r) const {
     Rational res(*this);
     return res /= r;
+}
+
+Rational& Rational::operator /=(int value) {
+    if (value == 0) {
+        throw domain_error("Division by zero integer");
+    }
+    denom *= value;
+    simplify();
+    return *this;
+}
+
+Rational Rational::operator /(int value) const {
+    Rational res(*this);
+    return res /= value;
+}
+
+Rational operator /(int lhs, const Rational& rhs) {
+    return Rational(lhs) / rhs;
 }
 
 Rational& Rational::operator ++() {
@@ -134,7 +174,19 @@ Rational::operator double() const {
 }
 
 istream& operator >>(istream& in, Rational& r) {
-    in >> r.numer >> r.denom;
+    int n;
+    int d;
+    in >> n >> d;
+    if (!in) {
+        return in;
+    }
+    if (d == 0) {
+        in.setstate(ios::failbit);
+        return in;
+    }
+
+    r.numer = n;
+    r.denom = d;
     r.simplify();
     return in;
 }
@@ -145,26 +197,25 @@ ostream& operator <<(ostream& out, const Rational& r) {
 }
 
 void QuadUravnenie(Rational a, Rational b, Rational c) {
-    const Rational zero(0), two(2), four(4);
-
-    if (a == zero) {
-        if (b == zero) {
-            cout << (c == zero ? "Бесконечно много решений." : "Решений нет.") << endl;
+    if (a == Rational(0)) {
+        if (b == Rational(0)) {
+            cout << (c == Rational(0) ? "Бесконечно много решений." : "Решений нет.") << endl;
             return;
         }
         cout << "Линейное уравнение, x = " << static_cast<double>((-c) / b) << endl;
         return;
     }
 
-    const double d = static_cast<double>(b * b - four * a * c);
-    if (d < 0.0) {
+    const Rational discriminant = b * b - 4 * a * c;
+    if (discriminant < Rational(0)) {
         cout << "Действительных корней нет." << endl;
         return;
     }
 
-    const double denom = static_cast<double>(two * a);
+    const double d = static_cast<double>(discriminant);
+    const double denom = static_cast<double>(2 * a);
     const double minusB = static_cast<double>(-b);
-    if (d == 0.0) {
+    if (discriminant == Rational(0)) {
         cout << "Один корень: x = " << (minusB / denom) << endl;
         return;
     }
