@@ -99,7 +99,7 @@ bool Field::isRedTurnNow() const {
 void Field::print() const {
     cout << " 1 2 3 4 5 6 7\n";
     for (int j = 0; j < FIELD_HEIGHT; j++) {
-        cout << "|";
+        cout << ".";
         for (int i = 0; i < FIELD_WIDTH; i++) {
             char c;
             switch (cells[i][j]) {
@@ -107,11 +107,11 @@ void Field::print() const {
                 case YELLOW: c = 'Y'; break;
                 default:     c = ' '; break;
             }
-            cout << c << "|";
+            cout << c << ".";
         }
         cout << "\n";
     }
-    cout << "---------------\n";
+    cout << "\n";
 }
 
 // Печать результата игры
