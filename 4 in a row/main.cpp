@@ -1,7 +1,7 @@
 #include "4_in_a_row.h"
 #include <iostream>
 #include <limits>
-#include <clocale>
+#include <locale.h>
 
 using namespace std;
 
@@ -21,16 +21,18 @@ int main() {
         while (true) {
             if (cin >> column && column >= 1 && column <= 7) {
                 break; // Успешный ввод корректного числа
+            } else if (cin.eof()) {
+                cout << "\nВвод завершён. Игра остановлена.\n";
+                return 0;
             } else {
                 cout << "Ошибка! Введите целое число от 1 до 7: ";
                 cin.clear(); // Сброс состояния потока
                 cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Очистка мусора из буфера
             }
         }
-        
-        // Проверка на случай, выбора полностью заполненного столбеца
+        // Проверка на случай, выбора полностью заполненного столбца
         if (!field.makeTurn(column)) {
-            cout << "-> Этот столбец уже заполнен! Выберите другой.\n\n";
+            cout << "Этот столбец уже заполнен! Выберите другой.\n\n";
         }
     }
     
