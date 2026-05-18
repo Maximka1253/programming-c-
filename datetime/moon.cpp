@@ -1,132 +1,107 @@
-#include <iostream>
+#include "moon.h"
 #include <fstream>
-#include <string>
-#include <ctime>
-#include "datatime.h"
+#include <limits>
+#include <sstream>
 
 using namespace std;
 
+namespace {
+
+struct MoonPoint {
+    DateTime time;
+    double elevation = 0.0;
+};
+
 ifstream openMoonFile(int year) {
-    string filePath = "Moon/moon" + to_string(year) + ".dat";
-    ifstream file(filePath);
-
-    if (!file.is_open()) {
-        cout << "Не удалось открыть файл: " << filePath << endl;
-    }
-
-    return file;
+    const string filePath = "Moon/moon" + to_string(year) + ".dat";
+    return ifstream(filePath);
 }
 
-long getYMD(const DateTime& dt) {
-    return dt.getYear() * 10000 + dt.getMonth() * 100 + dt.getDay();
-}
-
-bool parseLine(const string& line, long& ymd, string& time, double& elevation) {
+bool parseMoonLine(const string& line, MoonPoint& point) {
     if (line.empty()) return false;
 
-    long tmpYmd;
-    char hms[7];
-    double tempT, tempR, el, az, fi, lg;
+    long ymd;
+    string hms;
+    double value1, value2, value3, value4, value5, value6;
+    istringstream stream(line);
 
-
-    if (sscanf(line.c_str(), "%ld %6s %lf %lf %lf %lf %lf %lf",       //распределение строчек по переменным
-               &tmpYmd, hms, &tempT, &tempR, &el, &az, &fi, &lg) != 8)
+    if (!(stream >> ymd >> hms >> value1 >> value2 >> value3 >> value4 >> value5)) {
         return false;
+    }
 
-    string hmsStr = hms;
+    // В файлах может быть 5 или 6 числовых колонок после даты и времени.
+    const double elevation = (stream >> value6) ? value3 : value2;
 
-    if (hmsStr.length() == 5) hmsStr = "0" + hmsStr;
+    point.time = DateTime::fromYmdHms(ymd, hms);
+    if (!point.time.isValid()) return false;
 
-    time = hmsStr.substr(0, 2) + ":" + hmsStr.substr(2, 2) + ":" + hmsStr.substr(4, 2); // резделение времени
-
-    ymd = tmpYmd;
-    elevation = el;
-
+    point.elevation = elevation;
     return true;
 }
 
-class Moon {
-    DateTime dt;
+}
 
-public:
-    Moon() {
-        cout << "Введите дату: ГОД МЕСЯЦ ДЕНЬ ЧАС МИНУТА СЕКУНДА" << endl;
+Moon::Moon() : dt() {
+}
 
-        while (!(cin >> dt)) {
-            cout << "Ошибка ввода! Попробуйте снова." << endl;
-            cin.clear();
-            cin.ignore(10000, '\n');
-        }
-    }
+Moon::Moon(const DateTime& dateTime) : dt(dateTime) {
+}
 
-    void calculate() {
-        ifstream file = openMoonFile(dt.getYear());
-        if (!file.is_open()) return;
+MoonResult Moon::calculate() const {
+    MoonResult result;
+    result.date = dt;
 
-        string line;
-        getline(file, line);
+    ifstream file = openMoonFile(dt.getYear());
+    if (!file.is_open()) return result;
+    result.fileOpened = true;
 
-        long targetYmd = getYMD(dt);
+    string line;
+    getline(file, line);
 
-        string riseTime = "нет", setTime = "нет", culmTime = "нет";
+    DateTime dayBegin = dt.startOfDay();
+    DateTime dayEnd = dayBegin + 1;
 
-        double maxElevation = -1e9;
-        double prevElevation = 0;
-        bool hasPrev = false;
+    double maxElevation = numeric_limits<double>::lowest();
 
-        while (getline(file, line)) {
-            long currentYmd;
-            string currentTime;
-            double currentElevation;
+    double prevElevation = 0;
+    bool hasPrev = false;
 
-            if (!parseLine(line, currentYmd, currentTime, currentElevation)) continue;
+    while (getline(file, line)) {
+        MoonPoint point;
 
-            if (currentYmd > targetYmd) break;
-            if (currentYmd < targetYmd) continue;
+        if (!parseMoonLine(line, point)) continue;
 
-            // Восход / заход
-            if (hasPrev) {
-                if (prevElevation < 0 && currentElevation >= 0)
-                    riseTime = currentTime;
+        if (point.time >= dayEnd) break;
 
-                if (prevElevation > 0 && currentElevation <= 0)
-                    setTime = currentTime;
-            }
-
-            // Кульминация
-            if (currentElevation > maxElevation) {
-                maxElevation = currentElevation;
-                culmTime = currentTime;
-            }
-
-            prevElevation = currentElevation;
+        if (point.time < dayBegin) {
+            // Нужна последняя точка перед началом дня.
+            prevElevation = point.elevation;
             hasPrev = true;
+            continue;
         }
 
-        printResults(riseTime, culmTime, setTime);
+        if (hasPrev) {
+            // Переход через 0 градусов означает восход или заход.
+            if (prevElevation < 0 && point.elevation >= 0) {
+                result.rise = point.time;
+                result.hasRise = true;
+            }
+
+            if (prevElevation > 0 && point.elevation <= 0) {
+                result.set = point.time;
+                result.hasSet = true;
+            }
+        }
+
+        if (point.elevation > maxElevation) {
+            maxElevation = point.elevation;
+            result.culmination = point.time;
+            result.hasCulmination = true;
+        }
+
+        prevElevation = point.elevation;
+        hasPrev = true;
     }
 
-    void printResults(const string& rise, const string& culm, const string& set) {
-        cout << endl;
-        cout << "Дата: " << dt << endl;
-        cout << "Восход Луны: " << rise << endl;
-        cout << "Кульминация Луны: " << culm << endl;
-        cout << "Заход Луны: " << set << endl;
-    }
-};
-
-int main() {
-    clock_t startTime = clock();
-
-    Moon moonObj;
-    moonObj.calculate();
-
-    clock_t endTime = clock();
-
-    double executionTime = double(endTime - startTime) / CLOCKS_PER_SEC;
-
-    cout << endl;
-    cout << "Время выполнения: " << executionTime << " сек" << endl;
-
-    return 0;
+    return result;
 }
