@@ -11,7 +11,7 @@ public:
     Rectangle(double inputWidth, double inputHeight)
         : width(inputWidth), height(inputHeight) {
         if (inputWidth <= 0 || inputHeight <= 0) {
-            throw std::invalid_argument("Rectangle sides must be positive");
+            throw std::invalid_argument("Стороны прямоугольника должны быть положительными");
         }
     }
 
@@ -24,7 +24,7 @@ public:
     }
 
     std::string name() const override {
-        return "Rectangle";
+        return "Прямоугольник";
     }
 
 private:

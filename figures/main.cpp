@@ -32,7 +32,9 @@ int main() {
     cout << fixed << setprecision(2);
 
     for (const auto& figure : figures) {
-        cout << figure->name() << '\n' << "Area: " << figure->area() << '\n' << "Perimeter: " << figure->perimeter() << "\n\n";
+        cout << figure->name() << '\n'
+             << "Площадь: " << figure->area() << '\n'
+             << "Периметр: " << figure->perimeter() << "\n\n";
     }
 
     return 0;

@@ -13,12 +13,12 @@ public:
         : semiMajorAxis(inputSemiMajorAxis),
           semiMinorAxis(inputSemiMinorAxis) {
         if (inputSemiMajorAxis <= 0 || inputSemiMinorAxis <= 0) {
-            throw std::invalid_argument("Ellipse axes must be positive");
+            throw std::invalid_argument("Полуоси эллипса должны быть положительными");
         }
     }
 
     double area() const override {
-        return pi() * semiMajorAxis * semiMinorAxis;
+        return M_PI * semiMajorAxis * semiMinorAxis;
     }
 
     double perimeter() const override {
@@ -26,19 +26,15 @@ public:
         const double b = semiMinorAxis;
         const double h = std::pow(a - b, 2.0) / std::pow(a + b, 2.0);
 
-        return pi() * (a + b) *
+        return M_PI * (a + b) *
                (1.0 + (3.0 * h) / (10.0 + std::sqrt(4.0 - 3.0 * h)));
     }
 
     std::string name() const override {
-        return "Ellipse";
+        return "Эллипс";
     }
 
 private:
-    static double pi() {
-        return std::acos(-1.0);
-    }
-
     double semiMajorAxis;
     double semiMinorAxis;
 };

@@ -12,11 +12,11 @@ public:
     Triangle(double inputA, double inputB, double inputC)
         : a(inputA), b(inputB), c(inputC) {
         if (inputA <= 0 || inputB <= 0 || inputC <= 0) {
-            throw std::invalid_argument("Triangle sides must be positive");
+            throw std::invalid_argument("Стороны треугольника должны быть положительными");
         }
         if (inputA + inputB <= inputC || inputA + inputC <= inputB ||
             inputB + inputC <= inputA) {
-            throw std::invalid_argument("Triangle inequality is broken");
+            throw std::invalid_argument("Нарушено неравенство треугольника");
         }
     }
 
@@ -31,7 +31,7 @@ public:
     }
 
     std::string name() const override {
-        return "Triangle";
+        return "Треугольник";
     }
 
 private:

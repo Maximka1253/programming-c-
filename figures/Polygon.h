@@ -16,7 +16,7 @@ public:
     explicit Polygon(std::vector<Point> inputPoints)
         : points(std::move(inputPoints)) {
         if (points.size() < 3) {
-            throw std::invalid_argument("Polygon must have at least 3 points");
+            throw std::invalid_argument("Многоугольник должен иметь минимум 3 точки");
         }
     }
 
@@ -47,7 +47,7 @@ public:
     }
 
     std::string name() const override {
-        return "Polygon";
+        return "Многоугольник";
     }
 
 private:
