@@ -2,6 +2,7 @@
 #define POLYGON_H
 
 #include <cmath>
+#include <fstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -19,6 +20,9 @@ public:
             throw std::invalid_argument("Многоугольник должен иметь минимум 3 точки");
         }
     }
+
+    explicit Polygon(const std::string& filename)
+        : Polygon(readPointsFromFile(filename)) {}
 
     double area() const override {
         double sum = 0.0;
@@ -51,6 +55,38 @@ public:
     }
 
 private:
+    static std::vector<Point> readPointsFromFile(const std::string& filename) {
+        std::ifstream file(filename);
+        // Проверяем, удалось ли открыть файл
+        if (!file) {
+            throw std::invalid_argument("Не удалось открыть файл с многоугольником");
+        }
+
+        std::size_t pointCount = 0;
+        file >> pointCount;
+        // Удалось ли прочитать количество точек
+        if (!file) {
+            throw std::invalid_argument("Не удалось прочитать количество точек");
+        }
+
+        std::vector<Point> inputPoints;
+        inputPoints.reserve(pointCount);
+        // Читаем координаты точек из файла
+        for (std::size_t i = 0; i < pointCount; ++i) {
+            double x = 0.0;
+            double y = 0.0;
+            file >> x >> y;
+
+            if (!file) {
+                throw std::invalid_argument("Не удалось прочитать координаты точки");
+            }
+            // Вставляем точку в вектор
+            inputPoints.push_back({x, y});
+        }
+
+        return inputPoints;
+    }
+
     std::vector<Point> points;
 };
 

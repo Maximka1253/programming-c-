@@ -14,10 +14,7 @@ using namespace std;
 int main() {
     Triangle triangle(3.0, 4.0, 5.0);
     Rectangle rectangle(4.0, 6.0);
-    Polygon polygon(vector<Polygon::Point>{{0.0, 0.0},
-                                           {4.0, 0.0},
-                                           {4.0, 3.0},
-                                           {0.0, 3.0}});
+    Polygon polygon("polygon.txt");
     Circle circle(5.0);
     Ellipse ellipse(6.0, 3.0);
 
