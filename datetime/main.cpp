@@ -21,6 +21,10 @@ int main() {
     cout << "dt1 < dt2: " << (dt1 < dt2) << endl;
     cout << "dt1 == dt2: " << (dt1 == dt2) << endl << endl;
 
+    DateTime easterDt1 = DateTime::getEaster(dt1);
+    cout << "Православная Пасха в " << dt1.getYear()
+         << " году: " << easterDt1 << endl << endl;
+
     DateTime userDate;
 
     cout << "Введите дату в формате: ГОД МЕСЯЦ ДЕНЬ ЧАС МИНУТА СЕКУНДА(2026 4 7 12 12 12)" << endl;
@@ -29,6 +33,8 @@ int main() {
     if (cin >> userDate) {
         cout << "Вы ввели: " << userDate << endl;
         cout << "День недели: " << userDate.getWeekDayName() << endl;
+        cout << "Православная Пасха в " << userDate.getYear()
+             << " году: " << DateTime::getEaster(userDate) << endl;
     } else {
         cout << "Ошибка! Такой даты не существует или формат ввода неверный." << endl;
     }
