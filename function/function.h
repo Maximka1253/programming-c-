@@ -11,7 +11,6 @@ public:
     virtual double value(double x) const = 0;
     virtual std::string name() const = 0;
 
-    void printValue(double x) const;
     double minimum(double left, double right, double step) const;
     double maximum(double left, double right, double step) const;
     double derivative(double x, double h) const;

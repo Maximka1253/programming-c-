@@ -7,10 +7,6 @@
 
 Function::~Function() {}
 
-void Function::printValue(double x) const {
-    std::cout << "f(" << x << ") = " << value(x) << std::endl;
-}
-
 double Function::minimum(double left, double right, double step) const {
     checkInterval(left, right, step);
 
