@@ -5,16 +5,18 @@
 
 class Rational {
 private:
-    int numer;
-    int denom;
+    long long numer;
+    long long denom;
 
-    int gcd(int a, int b) const;
+    long long gcd(long long a, long long b) const;
     void simplify();
 
 public:
     Rational();
     Rational(int number);
-    Rational(int n, int d);
+    Rational(long long number);
+    Rational(long long n, long long d);
+    Rational(double value);
 
     Rational& operator +=(const Rational& r);
     Rational operator +(const Rational& r) const;
@@ -51,6 +53,7 @@ public:
 
     friend std::istream& operator >>(std::istream& in, Rational& r);
     friend std::ostream& operator <<(std::ostream& out, const Rational& r);
+    friend void QuadUravnenie(Rational a, Rational b, Rational c);
 };
 
 void QuadUravnenie(Rational a, Rational b, Rational c);
