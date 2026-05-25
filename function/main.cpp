@@ -6,13 +6,6 @@
 
 using namespace std;
 
-struct Demonstration {
-    Function* function;
-    double x;
-    double left;
-    double right;
-    double step;
-};
 
 // Выводит основные результаты для одной функции.
 void demonstrate(const Function* function, double x, double left, double right, double step) {
@@ -21,25 +14,23 @@ void demonstrate(const Function* function, double x, double left, double right, 
          << "Минимум на [" << left << "; " << right << "]: " << function->minimum(left, right, step) << '\n'
          << "Максимум на [" << left << "; " << right << "]: " << function->maximum(left, right, step) << '\n'
          << "Производная f'(" << x << "): " << function->derivative(x, 0.0001) << '\n'
-         << "Интеграл на [" << left << "; " << right << "]: " << function->integral(left, right, step) << "\n\n";
+         << "Интеграл на [" << left << "; " << right << "]: " << function->integral(left, right, step) << "\n";
 }
 
 int main() {
-    setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "Russian");
 
-    vector<Demonstration> demonstrations = {
-        {new Parabola(1, -2, 1), 2, -3, 3, 0.01},
-        {new Hiperbola(4, 1), 2, 1, 5, 0.01},
-        {new Exponenta(2, 0.5, 1), 1, 0, 3, 0.01},
-        {new Polinom({1, -3, 2, 1}), 2, -2, 2, 0.01}
-    };
-
-    for (const auto& demonstration : demonstrations) {
-        demonstrate(demonstration.function, demonstration.x, demonstration.left, demonstration.right, demonstration.step);
+    vector<Function*> functions;
+    
+    functions.push_back(new Polinom({1, 0.5, 2, 5}));
+    
+    for (const auto& function : functions) {
+        demonstrate(function, 2.0, 1.0, 5.0, 0.1);
+        cout << "-----------------------------\n";
     }
 
-    for (const auto& demonstration : demonstrations) {
-        delete demonstration.function;
+    for (const auto& function : functions) {
+        delete function;
     }
 
     return 0;
