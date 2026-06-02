@@ -219,7 +219,7 @@ static bool depthFirstSearch(
     if (used[currentVertex]) {
         return false;
     }
-
+    // Получаем позицию на доске для текущей вершины графа.
     Position pos = graph.getPosition(currentVertex);
     bool currentIsNewCell = false;
 
@@ -240,7 +240,7 @@ static bool depthFirstSearch(
         used[currentVertex] = false;
         return nowUsedNewCell;
     }
-
+    // Проходим по соседям текущей вершины графа.
     const vector<int>& neighbours = graph.getNeighbours(currentVertex);
     for (int i = 0; i < static_cast<int>(neighbours.size()); i++) {
         if (depthFirstSearch(
@@ -278,7 +278,7 @@ static bool canBuildWordAutomatically(const Board& board, const vector<string>& 
 // Проверка, есть ли у игроков возможный ход. Если нет, то игра заканчивается.
 bool Game::hasPossibleMove() const {
     if (board.isFull()) {
-        return false;
+        return false; // Если доска полностью заполнена, ходов нет.
     }
 
     int filledCells = 0;
@@ -289,7 +289,7 @@ bool Game::hasPossibleMove() const {
             }
         }
     }
-
+    // Собираем уже использованные слова в множество для быстрого поиска.
     unordered_set<string> usedWordSet;
     for (int i = 0; i < static_cast<int>(usedWords.size()); i++) {
         usedWordSet.insert(dictionary.normalize(usedWords[i]));
@@ -297,7 +297,7 @@ bool Game::hasPossibleMove() const {
 
     const vector<string>& words = dictionary.getWords();
     int maxWordLength = filledCells + 1;
-
+    // Проходим по всем словам в словаре и проверяем, можно ли построить их, добавив одну букву.
     for (int w = 0; w < static_cast<int>(words.size()); w++) {
         string word = dictionary.normalize(words[w]);
         vector<string> letters = RussianText::splitRussianLetters(word);
@@ -307,11 +307,11 @@ bool Game::hasPossibleMove() const {
             || static_cast<int>(letters.size()) > maxWordLength
             || usedWordSet.find(word) != usedWordSet.end()
         ) {
-            continue;
+            continue; // Слово уже использовано или слишком длинное, пропускаем его.
         }
 
         if (canBuildWordAutomatically(board, letters)) {
-            return true;
+            return true; // Нашлось слово, которое можно построить, значит ход есть.
         }
     }
 
@@ -334,10 +334,6 @@ void Game::printResults() const {
 string Game::getWinnerText() const {
     if (players.empty()) {
         return "Нет игроков.";
-    }
-
-    if (passesInRow >= static_cast<int>(players.size()) * 3) {
-        return "Ничья: игроки сделали три круга пропусков подряд.";
     }
 
     // Ищем лучший счет.
