@@ -25,7 +25,6 @@ private:
     int moveNumber;
 
     bool hasPossibleMove() const;
-    bool isWordUsed(const string& word) const;
 
 public:
     Game();

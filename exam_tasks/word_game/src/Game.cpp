@@ -1,6 +1,8 @@
 #include "Game.h"
+#include "BoardGraph.h"
 #include "RussianText.h"
 #include <iostream>
+#include <unordered_set>
 
 using namespace std;
 
@@ -19,6 +21,7 @@ static int readInt(const string& message) {
     }
 }
 
+// Чтение одного слова.
 static string readWord(const string& message) {
     string value;
     cout << message;
@@ -26,6 +29,7 @@ static string readWord(const string& message) {
     return value;
 }
 
+// Чтение позиции в виде двух чисел: строки и столбца.
 static Position readPosition(const string& message) {
     int row;
     int col;
@@ -48,6 +52,7 @@ Game::Game() {
     moveNumber = 1;
 }
 
+// Инициализация игры: загрузка словаря, ввод игроков и стартового слова.
 bool Game::init() {
     cout << "Консольная игра \"Слова\"\n\n";
 
@@ -201,12 +206,68 @@ void Game::nextPlayer() {
     }
 }
 
+// Рекурсивная функция для проверки, можно ли построить слово, добавив одну новую букву.
+static bool depthFirstSearch(
+    const Board& board,
+    const BoardGraph& graph,
+    const vector<string>& letters,
+    int currentVertex,
+    int index,
+    bool used[Board::SIZE * Board::SIZE],
+    bool usedNewCell
+) {
+    if (used[currentVertex]) {
+        return false;
+    }
 
-bool Game::isWordUsed(const string& word) const {
-    string normalizedWord = dictionary.normalize(word);
+    Position pos = graph.getPosition(currentVertex);
+    bool currentIsNewCell = false;
 
-    for (int i = 0; i < static_cast<int>(usedWords.size()); i++) {
-        if (dictionary.normalize(usedWords[i]) == normalizedWord) {
+    if (board.isEmpty(pos)) {
+        if (usedNewCell || !board.hasFilledNeighbour(pos)) {
+            return false;
+        }
+
+        currentIsNewCell = true;
+    } else if (board.getLetter(pos) != letters[index]) {
+        return false;
+    }
+
+    bool nowUsedNewCell = usedNewCell || currentIsNewCell;
+    used[currentVertex] = true;
+
+    if (index == static_cast<int>(letters.size()) - 1) {
+        used[currentVertex] = false;
+        return nowUsedNewCell;
+    }
+
+    const vector<int>& neighbours = graph.getNeighbours(currentVertex);
+    for (int i = 0; i < static_cast<int>(neighbours.size()); i++) {
+        if (depthFirstSearch(
+            board,
+            graph,
+            letters,
+            neighbours[i],
+            index + 1,
+            used,
+            nowUsedNewCell
+        )) {
+            used[currentVertex] = false;
+            return true;
+        }
+    }
+
+    used[currentVertex] = false;
+    return false;
+}
+
+// Проверяем, можно ли построить слово, добавив одну новую букву на доску.
+static bool canBuildWordAutomatically(const Board& board, const vector<string>& letters) {
+    BoardGraph graph;
+    bool used[Board::SIZE * Board::SIZE] = {};
+
+    for (int vertex = 0; vertex < graph.getVertexCount(); vertex++) {
+        if (depthFirstSearch(board, graph, letters, vertex, 0, used, false)) {
             return true;
         }
     }
@@ -214,58 +275,43 @@ bool Game::isWordUsed(const string& word) const {
     return false;
 }
 
+// Проверка, есть ли у игроков возможный ход. Если нет, то игра заканчивается.
 bool Game::hasPossibleMove() const {
     if (board.isFull()) {
         return false;
     }
 
-    const vector<string>& words = dictionary.getWords();
-
+    int filledCells = 0;
     for (int row = 0; row < Board::SIZE; row++) {
         for (int col = 0; col < Board::SIZE; col++) {
-            Position pos(row, col);
-
-            if (!board.isEmpty(pos) || !board.hasFilledNeighbour(pos)) {
-                continue;
+            if (!board.isEmpty(Position(row, col))) {
+                filledCells++;
             }
+        }
+    }
 
-            for (int w = 0; w < static_cast<int>(words.size()); w++) {
-                string word = dictionary.normalize(words[w]);
+    unordered_set<string> usedWordSet;
+    for (int i = 0; i < static_cast<int>(usedWords.size()); i++) {
+        usedWordSet.insert(dictionary.normalize(usedWords[i]));
+    }
 
-                if (word.empty() || isWordUsed(word)) {
-                    continue;
-                }
+    const vector<string>& words = dictionary.getWords();
+    int maxWordLength = filledCells + 1;
 
-                vector<string> checkedLetters;
-                vector<string> letters = RussianText::splitRussianLetters(word);
+    for (int w = 0; w < static_cast<int>(words.size()); w++) {
+        string word = dictionary.normalize(words[w]);
+        vector<string> letters = RussianText::splitRussianLetters(word);
 
-                for (int i = 0; i < static_cast<int>(letters.size()); i++) {
-                    bool alreadyChecked = false;
+        if (
+            word.empty()
+            || static_cast<int>(letters.size()) > maxWordLength
+            || usedWordSet.find(word) != usedWordSet.end()
+        ) {
+            continue;
+        }
 
-                    for (int j = 0; j < static_cast<int>(checkedLetters.size()); j++) {
-                        if (checkedLetters[j] == letters[i]) {
-                            alreadyChecked = true;
-                        }
-                    }
-
-                    if (alreadyChecked) {
-                        continue;
-                    }
-
-                    checkedLetters.push_back(letters[i]);
-
-                    Move move;
-                    move.pass = false;
-                    move.addedLetter = letters[i];
-                    move.addedPosition = pos;
-                    move.word = word;
-
-                    string errorMessage;
-                    if (validator.validateMove(board, move, dictionary, usedWords, errorMessage)) {
-                        return true;
-                    }
-                }
-            }
+        if (canBuildWordAutomatically(board, letters)) {
+            return true;
         }
     }
 
@@ -284,7 +330,7 @@ void Game::printResults() const {
         cout << players[i].getName() << ": " << players[i].getScore() << " очков\n";
     }
 }
-
+// Определение победителя и формирование текста результата.
 string Game::getWinnerText() const {
     if (players.empty()) {
         return "Нет игроков.";
