@@ -104,6 +104,7 @@ static bool canBuildWordAutomatically(
     return false;
 }
 
+// Проверяем, можно ли построить слово, добавив одну новую букву на доску.
 bool WordValidator::validateMove(
     const Board& board,
     const Move& move,

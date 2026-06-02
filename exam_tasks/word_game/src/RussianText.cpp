@@ -1,10 +1,11 @@
 #include "RussianText.h"
 
+// Вспомогательные функции для работы с русским текстом: нормализация, проверка, разбиение на буквы и т.д.
 static std::string normalizeRussianLetter(const std::string& letter, bool replaceYo) {
     if (letter == "ё" || letter == "Ё") {
         return replaceYo ? "е" : "ё";
     }
-
+    
     const std::string lowerLetters[] = {
         "а", "б", "в", "г", "д", "е", "ж", "з", "и", "й", "к",
         "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х",
@@ -58,7 +59,7 @@ bool RussianText::containsOnlyRussianLetters(const std::string& text) {
 
     return true;
 }
-
+// Разбиваем строку на отдельные русские буквы.
 std::vector<std::string> RussianText::splitRussianLetters(const std::string& text) {
     std::vector<std::string> letters;
     for (size_t i = 0; i < text.length(); i += 2) {

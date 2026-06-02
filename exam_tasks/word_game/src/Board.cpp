@@ -44,7 +44,7 @@ bool Board::isEmpty(const Position& pos) const {
 
     return cells[pos.row][pos.col].isEmpty();
 }
-
+// Ставим букву на доску. Возвращаем true, если успешно.
 bool Board::setLetter(const Position& pos, const string& letter) {
     if (!isInside(pos) || !isEmpty(pos)) {
         return false;
@@ -57,7 +57,7 @@ bool Board::setLetter(const Position& pos, const string& letter) {
     cells[pos.row][pos.col].setLetter(RussianText::normalizeRussianWord(letter));
     return true;
 }
-
+// Получаем букву с доски. Если позиция некорректная, возвращаем пустую строку.
 string Board::getLetter(const Position& pos) const {
     if (!isInside(pos)) {
         return "";

@@ -2,7 +2,7 @@
 #include <filesystem>
 
 using namespace std;
-
+// Логгер для записи хода игры в файл.
 bool Logger::open(const string& filename) {
     filesystem::path path(filename);
     filesystem::path parent = path.parent_path();
