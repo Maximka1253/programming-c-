@@ -36,14 +36,16 @@ void Logger::logStart(const vector<Player>& players, const string& startWord) {
     }
 
     file << "\n";
+    file.flush();
 }
 
-void Logger::logMove(const Player& player, const Move& move, const string& result) {
+void Logger::logMove(int moveNumber, const Player& player, const Move& move, const string& result) {
     // Записываем один ход.
     if (!file.is_open()) {
         return;
     }
 
+    file << "Номер хода: " << moveNumber << "\n";
     file << "Ход игрока: " << player.getName() << "\n";
 
     if (move.pass) {
@@ -56,6 +58,7 @@ void Logger::logMove(const Player& player, const Move& move, const string& resul
     }
 
     file << "Результат: " << result << "\n\n";
+    file.flush();
 }
 
 void Logger::logEnd(const vector<Player>& players, const string& result) {
@@ -72,4 +75,5 @@ void Logger::logEnd(const vector<Player>& players, const string& result) {
     }
 
     file << "Финальный результат: " << result << "\n";
+    file.flush();
 }

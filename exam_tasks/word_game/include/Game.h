@@ -22,6 +22,7 @@ private:
     vector<string> usedWords;
     int currentPlayer;
     int passesInRow;
+    int moveNumber;
 
     bool hasPossibleMove() const;
     bool isWordUsed(const string& word) const;

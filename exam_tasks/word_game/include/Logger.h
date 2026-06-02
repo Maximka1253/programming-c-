@@ -19,7 +19,7 @@ public:
     bool open(const string& filename);
     void write(const string& message);
     void logStart(const vector<Player>& players, const string& startWord);
-    void logMove(const Player& player, const Move& move, const string& result);
+    void logMove(int moveNumber, const Player& player, const Move& move, const string& result);
     void logEnd(const vector<Player>& players, const string& result);
 };
 

@@ -45,6 +45,7 @@ static Position readPosition(const string& message) {
 Game::Game() {
     currentPlayer = 0;
     passesInRow = 0;
+    moveNumber = 1;
 }
 
 bool Game::init() {
@@ -99,6 +100,7 @@ bool Game::init() {
 
     currentPlayer = 0;
     passesInRow = 0;
+    moveNumber = 1;
 
     logger.logStart(players, startWord);
     cout << "Игра началась. Координаты клеток вводятся числами от 0 до 4.\n";
@@ -125,7 +127,8 @@ void Game::play() {
                 if (move.pass) {
                     passesInRow++;
                     cout << "Ход пропущен.\n";
-                    logger.logMove(player, move, "Пропуск хода. Пропусков подряд: " + to_string(passesInRow));
+                    logger.logMove(moveNumber, player, move, "Пропуск хода. Пропусков подряд: " + to_string(passesInRow));
+                    moveNumber++;
                 } else {
                     string word = dictionary.normalize(move.word);
                     string letter = RussianText::normalizeRussianWord(move.addedLetter);
@@ -137,14 +140,15 @@ void Game::play() {
                     passesInRow = 0;
 
                     cout << "Ход принят. Начислено очков: " << points << "\n";
-                    logger.logMove(player, move, "Ход принят. Начислено очков: " + to_string(points));
+                    logger.logMove(moveNumber, player, move, "Ход принят. Начислено очков: " + to_string(points));
+                    moveNumber++;
                 }
 
                 moveAccepted = true;
             } else {
                 cout << "Ошибка хода: " << errorMessage << "\n";
                 cout << "Попробуйте ввести ход еще раз.\n";
-                logger.logMove(player, move, "Ошибка: " + errorMessage);
+                logger.logMove(moveNumber, player, move, "Ошибка: " + errorMessage);
             }
         }
 
